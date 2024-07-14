@@ -5,10 +5,10 @@ import java.io.FileReader;
 
 class Taquilla {
     int numTickets;
-    public int Tdisp=2;
+    public int Tdisp=5;
      
     Taquilla (int numTickets){
-        this.numTickets = 50;
+        this.numTickets = numTickets;
     }
 
     public synchronized void comprar(){
@@ -27,17 +27,21 @@ class Taquilla {
             notifyAll();
     }
 
-    public synchronized void cancelar(int equipo, int cantEntradas){
+    public synchronized void cancelar(int cantEntradas){
         numTickets+=cantEntradas;
     }
 }
 
 class Fanatico implements Runnable {
     Taquilla T;
-    int equipo;
+    int equipo,cantEntradas;
     Fanatico(Taquilla T, int equipo){
         this.T = T;
         this.equipo = equipo;
+    }
+
+    Fanatico(int cantEntradas){
+        this.cantEntradas = cantEntradas;
     }
 
     
@@ -76,12 +80,14 @@ class Fanatico implements Runnable {
             case 1:
                 this.Comprar();
                 T.liberarTaquila();
-                break;
+            break;
             case 2:
                 this.Comprar();
                 T.liberarTaquila();
-                break;
-       
+            break;
+            case 3:
+                T.cancelar(equipo);
+            break;      
             default:
                 break;
         }
@@ -91,36 +97,44 @@ class Fanatico implements Runnable {
 
 class LVBP {
     public static void main (String args[]){
-    String entrada = entrada[100][3];
-    
     try (FileReader fr = new FileReader("casoprueba.txt")) {
-        BufferedReader br = new BufferedReader(fr);
-        // Lectura del fichero
-        String linea;
-        int numTickets = Integer.parseInt(linea=br.readLine());
-        System.out.println("Cantidad de Tickets "+numTickets);
+    int tickets,equipo;
+    BufferedReader br = new BufferedReader(fr);
+    // Lectura del fichero
+    String linea;
+    tickets = Integer.parseInt(linea=br.readLine());
+    Taquilla T = new Taquilla(tickets);
 
         while((linea=br.readLine())!=null){
-
+            String[] parts = linea.split(",");
+            switch (parts[0]) {
+                case "Caracas":
+                    // Capturar entrada del archivo
+                    equipo = 1;
+                    System.out.println("Equipo Caracas Seleccionado");
+                    Fanatico fanatico1 = new Fanatico(T,equipo);
+                    Thread t1 = new Thread(fanatico1);
+                    t1.start();
+                break;
+                case "Magallanes":
+                    equipo = 2;
+                    System.out.println("Equipo Mallanes Seleccionado");
+                    Fanatico fanatico2 = new Fanatico(T,equipo);
+                    Thread t2 = new Thread(fanatico2);
+                    t2.start();
+                break;
+                case "cancelar":
+                    equipo = 3;
+                    int cantEntradas = Integer.parseInt(parts[1]);
+                    System.out.println("Equipo Caracas Seleccionado");
+                    Fanatico cancelarEntradas = new Fanatico(cantEntradas);
+                    Thread t3 = new Thread(cancelarEntradas);
+                    t3.start();
+                break;
+            }   
         }
-     }
-     catch(Exception e){
-        e.printStackTrace();
-     }
   
-        Taquilla T = new Taquilla(100);
-        /*int i=0;
-
-        while(i<10){
-            // Capturar entrada del archivo
-            int equipo = (int)((Math.random()*2)+1);
-            System.out.println("Equipo "+equipo+" Seleccionado");
-            Fanatico fanatico = new Fanatico(T,equipo);
-            Thread t1 = new Thread(fanatico);
-            t1.start();
-            i++;
-        }*/
-
-
+     }
+     catch(Exception e){}
     }
 }

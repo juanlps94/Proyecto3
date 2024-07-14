@@ -28,7 +28,6 @@ class Taquilla {
     }
 
     public synchronized void cancelar(int cantEntradas){
-        System.out.println("DEVOLVIENDO "+cantEntradas+" ENTRADAS");
         numTickets+=cantEntradas;
     }
 

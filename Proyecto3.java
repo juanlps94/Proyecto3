@@ -30,10 +30,7 @@ class Taquilla {
     public synchronized void cancelar(int cantEntradas){
         numTickets+=cantEntradas;
     }
-
-
 }
-
 
 class Fanatico implements Runnable {
     Taquilla T;
@@ -45,12 +42,13 @@ class Fanatico implements Runnable {
         this.cantEntradas = cantEntradas;
     }
    
-  
     public void Comprar() {
 
         if(this.T.numTickets<0){
             System.out.println("No hay tickets disponibles...");
-            }else{
+            }else if (this.T.numTickets-this.cantEntradas<0) {
+                System.out.println("No hay suficientes tickets disponibles para una compra de"+this.cantEntradas+"...");
+            } else{
 
                 if(this.equipo==1){     
                 System.out.println("Fanatico del Caracas comprando "+this.cantEntradas+" tickets");
@@ -77,7 +75,6 @@ class Fanatico implements Runnable {
         this.T.numTickets = this.T.numTickets+this.cantEntradas;
     }
 
-
     @Override
     public void run(){
         switch (equipo) {
@@ -100,12 +97,9 @@ class Fanatico implements Runnable {
         }
 
     }
-
 }
 
-
 class LVBP {
-    
     public static void main (String args[]){
     try (FileReader fr = new FileReader("casoprueba.txt")) {
         int tickets,equipo;
@@ -122,19 +116,33 @@ class LVBP {
                 switch (parts[0]) {
                     case "Caracas":
                         equipo = 1;
-                        cantEntradas = Integer.parseInt(parts[1]);
-                        System.out.println("Equipo Caracas Seleccionado");
-                        Fanatico fanatico = new Fanatico(T,equipo,cantEntradas);
-                        Thread t = new Thread(fanatico);
-                        t.start();
+                        if(parts[1].equals("grupo")){
+                            System.out.println("Equipo Caracas Seleccionado para compra en grupo");
+                            cantEntradas = Integer.parseInt(parts[2]);
+                            Fanatico fanatico = new Fanatico(T,equipo,cantEntradas);
+                            Thread t = new Thread(fanatico);
+                            t.start();
+                        }else{
+                            System.out.println("Equipo Caracas Seleccionado");
+                            Fanatico fanatico = new Fanatico(T,equipo,1);
+                            Thread t = new Thread(fanatico);
+                            t.start();
+                        }
                     break;
                     case "Magallanes":
                         equipo = 2;
-                        System.out.println("Equipo Mallanes Seleccionado");
-                        cantEntradas = Integer.parseInt(parts[1]);
-                        Fanatico fanatico2 = new Fanatico(T,equipo,cantEntradas);
-                        Thread t2 = new Thread(fanatico2);
-                        t2.start();
+                        if(parts[1].equals("grupo")){
+                            System.out.println("Equipo Magallanes Seleccionado para compra en grupo");
+                            cantEntradas = Integer.parseInt(parts[2]);
+                            Fanatico fanatico = new Fanatico(T,equipo,cantEntradas);
+                            Thread t2 = new Thread(fanatico);
+                            t2.start();
+                        }else{
+                            System.out.println("Equipo Magallanes Seleccionado");
+                            Fanatico fanatico = new Fanatico(T,equipo,1);
+                            Thread t2 = new Thread(fanatico);
+                            t2.start();
+                        }
                     break;
                     case "cancelar":
                         equipo = 3;
@@ -150,4 +158,3 @@ class LVBP {
 
     }
 }
-

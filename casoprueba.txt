@@ -1,6 +1,7 @@
 100
 Magallanes,1
 Caracas,1
+cancelar,3
 Magallanes,1
 Magallanes,1
 Caracas,1

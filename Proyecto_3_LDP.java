@@ -106,6 +106,14 @@ class Fan implements Runnable {
 
 class LVBP {
     public static void main(String[] args) {
+        
+        if (args.length != 0) {
+            String filename = args[0];
+        }
+        else {
+            System.err.println("File not found: java Proyecto_3_LDP <filename>");
+        }
+        
         try {
             FileReader fr = new FileReader("casosprueba.txt");
             BufferedReader buffer = new BufferedReader(fr);

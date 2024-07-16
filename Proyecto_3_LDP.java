@@ -124,7 +124,7 @@ class Fan implements Runnable {
     }
 }
 
-class LVBP {
+public class Proyecto_3_LDP {
     public static void main(String[] args) {
         /*
          ?  El nombre del archivo a leer se debe pasar como parámetro al programa
@@ -133,15 +133,11 @@ class LVBP {
          ?  En futuras versiones se debe sustituir "casosprueba.txt" por la variable
          ?  filename. 
         */
-        if (args.length != 0) {
-            String filename = args[0];
-        }
-        else {
-            System.err.println("File not found: java Proyecto_3_LDP <filename>");
-        }
+
+        String filename = args[0];
         
         try {
-            FileReader fr = new FileReader("casosprueba.txt");
+            FileReader fr = new FileReader(filename);
             BufferedReader buffer = new BufferedReader(fr);
             String linea;
 
@@ -187,8 +183,4 @@ class LVBP {
             buffer.close();
         } catch (IOException e) {}
     }
-}
-
-public class Proyecto_3_LDP {
-    
 }

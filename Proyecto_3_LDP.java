@@ -110,7 +110,7 @@ class Fan implements Runnable {
                 System.out.println("Fanatico del Caracas:");
             }
             else {
-                System.out.println("Fanatico del Magallanes");
+                System.out.println("Fanatico del Magallanes:");
             }
 
             this.myTaquilla.comprar(this.compra);

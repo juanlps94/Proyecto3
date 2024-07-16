@@ -7,7 +7,7 @@ class Taquilla {
     int numTickets;
     public int Tdisp=5;
      
-    Taquilla (int numTickets){
+    public Taquilla (int numTickets){
         this.numTickets = numTickets;
     }
 
@@ -36,7 +36,7 @@ class Fanatico implements Runnable {
     Taquilla T;
     int equipo,cantEntradas;
 
-    Fanatico(Taquilla T, int equipo,int cantEntradas){
+    public Fanatico(Taquilla T, int equipo,int cantEntradas){
         this.T = T;
         this.equipo = equipo;
         this.cantEntradas = cantEntradas;

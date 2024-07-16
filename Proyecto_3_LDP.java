@@ -154,7 +154,7 @@ public class Proyecto_3_LDP {
                             t1.start();
                         }
                         else {
-                            Fan cliente = new Fan(0, false, Integer.parseInt(partes[2]), T);
+                            Fan cliente = new Fan(0, false, Integer.parseInt(partes[1]), T);
                             Thread t1 = new Thread(cliente);
                             t1.start();
                         }
@@ -167,7 +167,7 @@ public class Proyecto_3_LDP {
                             t2.start();
                         }
                         else {
-                            Fan cliente = new Fan(1, false, Integer.parseInt(partes[2]), T);
+                            Fan cliente = new Fan(1, false, Integer.parseInt(partes[1]), T);
                             Thread t3 = new Thread(cliente);
                             t3.start();
                         }

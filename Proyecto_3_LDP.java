@@ -5,7 +5,10 @@ import java.io.FileReader;
 import java.io.IOException;
 
 class Taquillas {
+//* Cantidad máxima de tickets disponibles
     int cantTickets;
+
+//* Cantidad de taquillas disponibles (5 MAX)
     int disponible;
 
     public Taquillas(int num) {
@@ -14,6 +17,7 @@ class Taquillas {
     }
 
     public synchronized void comprar(int compra) {
+//*     Todas las taquillas están ocupadas
         while(this.disponible == 0) {
             try {
                 System.out.println("Taquilla no disponible");
@@ -21,10 +25,12 @@ class Taquillas {
             } catch (InterruptedException e) {}
         }
         
+//*     La compra excede la cantidad de tickets
         if(this.cantTickets - compra < 0) {
             System.out.println("No hay tickets suficientes");
         }
-        else {
+//!     Se proceden a comprar los tickets, ocupando la taquilla        
+        else {      
             System.out.println("Cliente comprando "+compra+" tickets ...");
             this.disponible--;
             this.cantTickets -= compra;
@@ -32,17 +38,24 @@ class Taquillas {
     }
 
     public synchronized void liberar() {
+/*
+!       Se libera la taquilla ocupada y se notifica a cualquiera esperando
+TODO:   Validar que la cantidad de taquillas disponibles no exceda las 5
+*/
         System.out.println("Saliendo de la taquilla");
         this.disponible++;
+        notifyAll();
     }
 
     public synchronized void cancelar(int compra) {
+//*     Todas las taquillas están ocupadas       
         while (this.disponible == 0) {
             try {
                 System.out.println("Taquilla no disponible");
                 wait();
             } catch (InterruptedException e) {}
         }
+//!     Se realiza la devolución de los tickets, ocupando la taquilla
         System.out.println("Cliente devolviendo "+compra+" tickets ...");
         this.disponible--;
         this.cantTickets += compra;
@@ -106,7 +119,13 @@ class Fan implements Runnable {
 
 class LVBP {
     public static void main(String[] args) {
-        
+        /*
+         ?  El nombre del archivo a leer se debe pasar como parámetro al programa
+         ?  para eso vamos a usar args, la primera posición corresponde al primer
+         ?  parámetro, por lo tanto se almacena en "filename".
+         ?  En futuras versiones se debe sustituir "casosprueba.txt" por la variable
+         ?  filename. 
+        */
         if (args.length != 0) {
             String filename = args[0];
         }

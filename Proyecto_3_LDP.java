@@ -31,7 +31,7 @@ class Taquillas {
         }
 //!     Se proceden a comprar los tickets, ocupando la taquilla        
         else {      
-            System.out.println("Cliente comprando "+compra+" tickets ...");
+            System.out.println("Comprando "+compra+" tickets ...");
             this.disponible--;
             this.cantTickets -= compra;
         }
@@ -56,7 +56,7 @@ TODO:   Validar que la cantidad de taquillas disponibles no exceda las 5
             } catch (InterruptedException e) {}
         }
 //!     Se realiza la devolución de los tickets, ocupando la taquilla
-        System.out.println("Cliente devolviendo "+compra+" tickets ...");
+        System.out.println("Cancelando "+compra+" tickets ...");
         this.disponible--;
         this.cantTickets += compra;
     }
@@ -96,7 +96,14 @@ class Fan implements Runnable {
             else {
                 System.out.println("Fanatico del Magallanes");
             }
+
             this.myTaquilla.cancelar(this.compra);
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {}
+
+            this.myTaquilla.liberar();
         }
         else {
             if (this.equipo == 0) {

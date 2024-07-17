@@ -4,6 +4,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+/*
+ ? Documentación para las BlockingQueue:
+ *  https://www.baeldung.com/java-blocking-queue
+ */
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 class Taquillas {
 //* Cantidad máxima de tickets disponibles
     int cantTickets;
@@ -11,29 +19,34 @@ class Taquillas {
 //* Cantidad de taquillas disponibles (5 MAX)
     int disponible;
 
+//* Cola de espera para los hilos
+    BlockingQueue<Fan> colaEspera;
+
     public Taquillas(int num) {
         this.cantTickets = num;
         this.disponible = 5;
+        this.colaEspera = new LinkedBlockingQueue<>();
     }
 
-    public synchronized void comprar(int compra) {
+    public synchronized void comprar(Fan cliente) {
 //*     Todas las taquillas están ocupadas
         while(this.disponible == 0) {
             try {
                 System.out.println("Taquilla no disponible");
+                this.colaEspera.put(cliente);
                 wait();
             } catch (InterruptedException e) {}
         }
         
 //*     La compra excede la cantidad de tickets
-        if(this.cantTickets - compra < 0) {
+        if(this.cantTickets - cliente.compra < 0) {
             System.out.println("No hay tickets suficientes");
         }
 //!     Se proceden a comprar los tickets, ocupando la taquilla        
         else {      
-            System.out.println("Comprando "+compra+" tickets ...");
+            System.out.println("Comprando "+cliente.compra+" tickets ...");
             this.disponible--;
-            this.cantTickets -= compra;
+            this.cantTickets -= cliente.compra;
         }
     }
 

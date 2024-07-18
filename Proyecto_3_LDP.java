@@ -31,7 +31,17 @@ class Taquillas {
         this.colaEspera = new LinkedBlockingQueue<>(5);
     }
 
+    public int getTicketsMAX(){
+        return this.cantTicketsMAX;
+    }
+
+    public int getTicketsACT(){
+        return this.cantTicketsACT;
+    }
+
     public synchronized void comprar(Fan cliente) {
+        System.out.println("Cliente ("+cliente.id+") comprando "+cliente.compra+" tickets");
+        
         if(this.cantTicketsACT - cliente.compra < 0) {
             System.out.println("No hay tickets suficientes");
         }
@@ -40,6 +50,7 @@ class Taquillas {
                 this.colaEspera.put(cliente);
                 this.disponible--;
                 this.cantTicketsACT -= cliente.compra;
+                System.out.println("Compra exitosa ... Esperando");
             } catch (InterruptedException e) {e.printStackTrace();}
         }
     }
@@ -48,10 +59,12 @@ class Taquillas {
         try {
             this.colaEspera.take();
             this.disponible++;
+            System.out.println("Cliente ("+cliente.id+") liberando la taquilla");
         } catch (InterruptedException e) {e.printStackTrace();}
     }
 
     public synchronized void cancelar(Fan cliente) {
+        System.out.println("Cliente ("+cliente.id+") devolviendo "+cliente.compra+" tickets");
         if (this.cantTicketsACT + cliente.compra > this.cantTicketsMAX) {
             System.err.println("La cantidad de tickets a devolver excede el maximo");
         }
@@ -60,6 +73,7 @@ class Taquillas {
                 this.colaEspera.put(cliente);
                 this.disponible--;
                 this.cantTicketsACT += cliente.compra;
+                System.out.println("Devolucion exitosa, esperando ...");
             } catch (InterruptedException e) {e.printStackTrace();}
         }
     }
@@ -105,7 +119,7 @@ class Fan implements Runnable {
             this.myTaquilla.cancelar(this);
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(4000);
             } catch (InterruptedException e) {}
 
             this.myTaquilla.liberar(this);
@@ -121,7 +135,7 @@ class Fan implements Runnable {
             this.myTaquilla.comprar(this);
             
             try {
-                Thread.sleep(2000);
+                Thread.sleep(4000);
             } catch (InterruptedException e) {}
 
             this.myTaquilla.liberar(this);
@@ -149,8 +163,12 @@ public class Proyecto_3_LDP {
 
             Taquillas T = new Taquillas(Integer.parseInt(linea = buffer.readLine()));
 
+            System.out.println("Cantidad de tickets total:"+T.getTicketsMAX());
+
             while((linea = buffer.readLine()) != null) {
                 String[] partes = linea.split(",");
+
+                System.out.println("Quedan "+T.cantTicketsACT+" tickets disponibles");
 
                 switch (partes[0]) {
                     case "Caracas":
@@ -187,7 +205,7 @@ public class Proyecto_3_LDP {
                 }
                 id++;
             }
-            buffer.close();
+            
         } catch (IOException e) {}
     }
 }

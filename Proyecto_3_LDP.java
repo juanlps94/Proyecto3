@@ -14,7 +14,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 class Taquillas {
 //* Cantidad máxima de tickets disponibles
-    int cantTickets;
+    int cantTicketsMAX;
+//* Cantidad actual de tickets disponibles
+    int cantTicketsACT;
 
 //* Cantidad de taquillas disponibles (5 MAX)
     int disponible;
@@ -23,65 +25,55 @@ class Taquillas {
     BlockingQueue<Fan> colaEspera;
 
     public Taquillas(int num) {
-        this.cantTickets = num;
+        this.cantTicketsMAX = num;
+        this.cantTicketsACT = num;
         this.disponible = 5;
-        this.colaEspera = new LinkedBlockingQueue<>();
+        this.colaEspera = new LinkedBlockingQueue<>(5);
     }
 
     public synchronized void comprar(Fan cliente) {
-//*     Todas las taquillas están ocupadas
-        while(this.disponible == 0) {
-            try {
-                System.out.println("Taquilla no disponible");
-                this.colaEspera.put(cliente);
-                wait();
-            } catch (InterruptedException e) {}
-        }
-        
-//*     La compra excede la cantidad de tickets
-        if(this.cantTickets - cliente.compra < 0) {
+        if(this.cantTicketsACT - cliente.compra < 0) {
             System.out.println("No hay tickets suficientes");
         }
-//!     Se proceden a comprar los tickets, ocupando la taquilla        
-        else {      
-            System.out.println("Comprando "+cliente.compra+" tickets ...");
-            this.disponible--;
-            this.cantTickets -= cliente.compra;
-        }
-    }
-
-    public synchronized void liberar() {
-/*
-!       Se libera la taquilla ocupada y se notifica a cualquiera esperando
-TODO:   Validar que la cantidad de taquillas disponibles no exceda las 5
-*/
-        System.out.println("Saliendo de la taquilla");
-        this.disponible++;
-        notifyAll();
-    }
-
-    public synchronized void cancelar(int compra) {
-//*     Todas las taquillas están ocupadas       
-        while (this.disponible == 0) {
+        else {
             try {
-                System.out.println("Taquilla no disponible");
-                wait();
-            } catch (InterruptedException e) {}
+                this.colaEspera.put(cliente);
+                this.disponible--;
+                this.cantTicketsACT -= cliente.compra;
+            } catch (InterruptedException e) {e.printStackTrace();}
         }
-//!     Se realiza la devolución de los tickets, ocupando la taquilla
-        System.out.println("Cancelando "+compra+" tickets ...");
-        this.disponible--;
-        this.cantTickets += compra;
+    }
+
+    public synchronized void liberar(Fan cliente) {
+        try {
+            this.colaEspera.take();
+            this.disponible++;
+        } catch (InterruptedException e) {e.printStackTrace();}
+    }
+
+    public synchronized void cancelar(Fan cliente) {
+        if (this.cantTicketsACT + cliente.compra > this.cantTicketsMAX) {
+            System.err.println("La cantidad de tickets a devolver excede el maximo");
+        }
+        else {
+            try {
+                this.colaEspera.put(cliente);
+                this.disponible--;
+                this.cantTicketsACT += cliente.compra;
+            } catch (InterruptedException e) {e.printStackTrace();}
+        }
     }
 }
 
 class Fan implements Runnable {
+    int id;
     int equipo;
     int compra;
     boolean action;
     Taquillas myTaquilla;
 
-    public Fan(int eq, boolean groupF, int tickets, Taquillas inTaquilla) {
+    public Fan(int id, int eq, boolean groupF, int tickets, Taquillas inTaquilla) {
+        this.id = id;
         this.equipo = eq;
         this.action = false;
         this.myTaquilla = inTaquilla;
@@ -110,13 +102,13 @@ class Fan implements Runnable {
                 System.out.println("Fanatico del Magallanes");
             }
 
-            this.myTaquilla.cancelar(this.compra);
+            this.myTaquilla.cancelar(this);
 
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {}
 
-            this.myTaquilla.liberar();
+            this.myTaquilla.liberar(this);
         }
         else {
             if (this.equipo == 0) {
@@ -126,13 +118,13 @@ class Fan implements Runnable {
                 System.out.println("Fanatico del Magallanes:");
             }
 
-            this.myTaquilla.comprar(this.compra);
+            this.myTaquilla.comprar(this);
             
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {}
 
-            this.myTaquilla.liberar();
+            this.myTaquilla.liberar(this);
         }
     }
 }
@@ -147,6 +139,7 @@ public class Proyecto_3_LDP {
          ?  filename. 
         */
 
+        int id = 1;
         String filename = args[0];
         
         try {
@@ -162,12 +155,12 @@ public class Proyecto_3_LDP {
                 switch (partes[0]) {
                     case "Caracas":
                         if (partes[1].equals("grupo")) {
-                            Fan cliente = new Fan(0, true, Integer.parseInt(partes[2]), T);
+                            Fan cliente = new Fan(id, 0, true, Integer.parseInt(partes[2]), T);
                             Thread t1 = new Thread(cliente);
                             t1.start();
                         }
                         else {
-                            Fan cliente = new Fan(0, false, Integer.parseInt(partes[1]), T);
+                            Fan cliente = new Fan(id, 0, false, Integer.parseInt(partes[1]), T);
                             Thread t1 = new Thread(cliente);
                             t1.start();
                         }
@@ -175,12 +168,12 @@ public class Proyecto_3_LDP {
                     
                     case "Magallanes":
                         if (partes[1].equals("grupo")) {
-                            Fan cliente = new Fan(1, true, Integer.parseInt(partes[2]), T);
+                            Fan cliente = new Fan(id, 1, true, Integer.parseInt(partes[2]), T);
                             Thread t2 = new Thread(cliente);
                             t2.start();
                         }
                         else {
-                            Fan cliente = new Fan(1, false, Integer.parseInt(partes[1]), T);
+                            Fan cliente = new Fan(id, 1, false, Integer.parseInt(partes[1]), T);
                             Thread t3 = new Thread(cliente);
                             t3.start();
                         }
@@ -192,6 +185,7 @@ public class Proyecto_3_LDP {
                         t4.start();
                     break;
                 }
+                id++;
             }
             buffer.close();
         } catch (IOException e) {}

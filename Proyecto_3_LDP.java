@@ -21,7 +21,7 @@ class Taquillas {
     int disponible;
     // * Cola de espera para los hilos
     BlockingQueue<Fan> colaEspera = new LinkedBlockingQueue<>();
-    
+
     public Taquillas(int num) {
         this.cantTicketsMAX = num;
         this.cantTicketsACT = num;
@@ -127,8 +127,6 @@ class Fan extends Thread {
 
     public Fan(int id, int eq, boolean groupF, int tickets, Taquillas inTaquilla) {
         this.id = id;
-    public Fan(int id, int eq, boolean groupF, int tickets, Taquillas inTaquilla) {
-        this.id = id;
         this.equipo = eq;
         this.action = false;
         this.myTaquilla = inTaquilla;
@@ -136,17 +134,13 @@ class Fan extends Thread {
         if (groupF) {
             this.compra = tickets;
         } else {
-        } else {
             this.compra = 1;
         }
     }
 
     public Fan(int id, int equi, int tickets, Taquillas inTaquilla) {
-    public Fan(int id, int equi, int tickets, Taquillas inTaquilla) {
         this.action = true;
         this.myTaquilla = inTaquilla;
-        this.id = id;
-        this.equipo = equi;
         this.id = id;
         this.equipo = equi;
         this.compra = tickets;
@@ -179,11 +173,6 @@ class Fan extends Thread {
                 this.myTaquilla.liberar(this);
             } catch (InterruptedException e) {}
 
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {}
-           this.myTaquilla.liberar(this);
-
         }
     }
 }
@@ -191,19 +180,6 @@ class Fan extends Thread {
 public class Proyecto_3_LDP {
     public static void main(String[] args) {
         /*
-         * ? El nombre del archivo a leer se debe pasar como parámetro al programa
-         * ? para eso vamos a usar args, la primera posición corresponde al primer
-         * ? parámetro, por lo tanto se almacena en "filename".
-         * ? En futuras versiones se debe sustituir "casosprueba.txt" por la variable
-         * ? filename.
-         */
-        String filename;
-        if(args.length==0){
-            filename="casoprueba.txt";
-        }else{
-            filename = args[0];
-        }
-
          * ? El nombre del archivo a leer se debe pasar como parámetro al programa
          * ? para eso vamos a usar args, la primera posición corresponde al primer
          * ? parámetro, por lo tanto se almacena en "filename".
@@ -225,8 +201,6 @@ public class Proyecto_3_LDP {
             Taquillas T = new Taquillas(Integer.parseInt(linea = buffer.readLine()));
             int id = 1;
             while ((linea = buffer.readLine()) != null) {
-            int id = 1;
-            while ((linea = buffer.readLine()) != null) {
                 String[] partes = linea.split(",");
 
                 switch (partes[0]) {
@@ -238,9 +212,6 @@ public class Proyecto_3_LDP {
                             Thread t1  = new Fan(id, 0, true, Integer.parseInt(partes[1]), T);
                             t1.start();
                         }
-
-                        break;
-
 
                         break;
 
@@ -260,12 +231,9 @@ public class Proyecto_3_LDP {
                         break;
                 }
                 id++;
-                id++;
             }
 
             buffer.close();
-        } catch (IOException e) {
-        }
         } catch (IOException e) {
         }
     }

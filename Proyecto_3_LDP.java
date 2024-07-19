@@ -15,10 +15,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 class Taquillas {
 //* Cantidad máxima de tickets disponibles
     int cantTickets;
-
+//* Cantidad actual de tickets disponibles
+    int cantTicketsACT;
 //* Cantidad de taquillas disponibles (5 MAX)
     int disponible;
-
 //* Cola de espera para los hilos
     BlockingQueue<Fan> colaEspera;
 
@@ -105,9 +105,9 @@ class Taquillas {
 }
 
 class Fan implements Runnable {
-    int equipo;
-    int compra;
     int id;
+    String equipo;
+    int compra;
     boolean action;
     Taquillas myTaquilla;
 
@@ -116,6 +116,13 @@ class Fan implements Runnable {
         this.equipo = eq;
         this.action = false;
         this.myTaquilla = inTaquilla;
+
+        if (eq == 0) {
+            this.equipo = "Caracas";
+        }
+        else{
+            this.equipo = "Magallanes";
+        }
 
         if (groupF) {
             this.compra = tickets;

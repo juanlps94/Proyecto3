@@ -106,7 +106,7 @@ class Taquillas {
 
 class Fan implements Runnable {
     int id;
-    String equipo;
+    int equipo;
     int compra;
     boolean action;
     Taquillas myTaquilla;
@@ -116,13 +116,6 @@ class Fan implements Runnable {
         this.equipo = eq;
         this.action = false;
         this.myTaquilla = inTaquilla;
-
-        if (eq == 0) {
-            this.equipo = "Caracas";
-        }
-        else{
-            this.equipo = "Magallanes";
-        }
 
         if (groupF) {
             this.compra = tickets;

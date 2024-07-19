@@ -18,13 +18,10 @@ class Taquillas {
     // * Cantidad actual de tickets disponibles
     int cantTicketsACT;
     // * Cantidad de taquillas disponibles (5 MAX)
-    // * Cantidad de taquillas disponibles (5 MAX)
     int disponible;
     // * Cola de espera para los hilos
     BlockingQueue<Fan> colaEspera = new LinkedBlockingQueue<>();
-    // * Cola de espera para los hilos
-    BlockingQueue<Fan> colaEspera = new LinkedBlockingQueue<>();
-
+    
     public Taquillas(int num) {
         this.cantTicketsMAX = num;
         this.cantTicketsACT = num;

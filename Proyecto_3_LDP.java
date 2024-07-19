@@ -17,10 +17,8 @@ class Taquillas {
     int cantTicketsMAX;
 //* Cantidad actual de tickets disponibles
     int cantTicketsACT;
-
 //* Cantidad de taquillas disponibles (5 MAX)
     int disponible;
-
 //* Cola de espera para los hilos
     BlockingQueue<Fan> colaEspera;
 

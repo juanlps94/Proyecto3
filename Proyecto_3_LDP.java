@@ -1,14 +1,5 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
-/*
- ? Documentación para las BlockingQueue:
- *  https://www.baeldung.com/java-blocking-queue
- */
-
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -18,56 +9,133 @@ class Taquillas {
     // * Cantidad actual de tickets disponibles
     int cantTicketsACT;
     // * Cantidad de taquillas disponibles (5 MAX)
-    int disponible;
+    int disponible = 5;
+    // * Bandera para la prioridad
+    boolean timer = false;
+
     // * Cola de espera para los hilos
     BlockingQueue<Fan> colaEspera = new LinkedBlockingQueue<>();
+    BlockingQueue<Fan> colaMagallanes = new LinkedBlockingQueue<>();
+
+    private void iniciarVIP() {
+        new Timer(true).schedule(new TimerTask() {
+            @Override
+            public void run() {
+                synchronized (Taquillas.this) {
+                    timer = true;
+                    System.out.println("\nTIEMPO DE PRIORIDAD PARA MAGALLANES ACTIVADO POR 8 SEGUNDOS...\n");
+                }
+
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                synchronized (Taquillas.this) {
+                    timer = false;
+                    System.out.println("\nFIN DE LA PRIORIDAD PARA MAGALLANES...\n");
+
+                    Taquillas.this.notifyAll();
+                }
+            }
+        }, 2000, 15000);
+    }
 
     public Taquillas(int num) {
         this.cantTicketsMAX = num;
         this.cantTicketsACT = num;
-        this.disponible = 5;
+        this.iniciarVIP();
     }
 
     public synchronized void comprar(Fan cliente) {
-        // * Todas las taquillas están ocupadas
         try {
             this.colaEspera.put(cliente);
+
+            if (cliente.equipo == 1) {
+                this.colaMagallanes.put(cliente);
+            }
         } catch (InterruptedException e) {}
 
         while (true) {
-        if (this.disponible == 0) {
-            System.out.println("Taquilla no disponible para "+cliente.id+" comprar "+cliente.compra+" Colocandose en la cola");
-            try {
-                /*System.out.println("El tamaño actual es "+this.colaEspera.size()+" y contiene: ");
-                for (Fan i :  this.colaEspera) {
-                    System.out.println(i.id);
-                }*/
-                wait();
-            } catch (InterruptedException e) {}
-        }
-        while(this.disponible == 0 || cliente!=this.colaEspera.peek()) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {}
-            }
-
-        this.disponible--;
-        if(cliente == this.colaEspera.peek()){
-            if (this.cantTicketsACT - cliente.compra < 0) {
-                System.out.println(
-                    "No hay tickets suficientes para que " + cliente.id + " compre " + cliente.compra + " entradas");
-                    this.colaEspera.poll(); //! OJO PELAO 1
+            if (this.timer) {
+                if (cliente.equipo != 1) {
+                    try {
+                        wait();
+                    }
+                    catch(InterruptedException e) {e.printStackTrace();}
                 }
-                // ! Se proceden a comprar los tickets, ocupando la taquilla
                 else {
-                    System.out.println("Fanatico " + cliente.id + " Comprando " + cliente.compra + " tickets ...");
-                    this.cantTicketsACT -= cliente.compra;
-                    this.colaEspera.poll();
-                }
+                    System.out.println("\nComprando VIP "+cliente.id+" ("+cliente.equipo+")");
+                
+                    if (this.disponible == 0) {
+                        System.out.println("Taquilla no disponible para "+cliente.id+"("+cliente.equipo+")"+" comprar "+cliente.compra+" Colocandose en la cola");
+                        try {
+                            /*System.out.println("El tamaño actual es "+this.colaEspera.size()+" y contiene: ");
+                            for (Fan i :  this.colaEspera) {
+                                System.out.println(i.id);
+                            }*/
+                            wait();
+                        } catch (InterruptedException e) {}
+                    }
+
+                    while(this.disponible == 0 || cliente!=this.colaMagallanes.peek()) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {}
+                    }
+
+                    this.disponible--;
+                    if(cliente == this.colaMagallanes.peek()){
+                        if (this.cantTicketsACT - cliente.compra < 0) {
+                            System.out.println(
+                                "No hay tickets suficientes para que " + cliente.id +" ("+cliente.equipo+")"+" compre " + cliente.compra + " entradas");
+                                this.colaMagallanes.poll(); //! OJO PELAO 1
+                                this.colaEspera.remove(cliente);
+                        }
+                        // ! Se proceden a comprar los tickets, ocupando la taquilla
+                        else {
+                            System.out.println("Fanatico " + cliente.id +" ("+cliente.equipo+")"+" Comprando " + cliente.compra + " tickets ...");
+                            this.cantTicketsACT -= cliente.compra;
+                            this.colaMagallanes.poll();
+                            this.colaEspera.remove(cliente);
+                        }
+                    }
                 break;
+                }
+            }
+            else {
+                if (this.disponible == 0) {
+                    System.out.println("Taquilla no disponible para "+cliente.id+" ("+cliente.equipo+")"+" comprar "+cliente.compra+" Colocandose en la cola");
+                    try {
+                        wait();
+                        goto()
+                    } catch (InterruptedException e) {}
+                }
+                while(this.disponible == 0 || cliente!=this.colaEspera.peek()) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {}
+                    }
+
+                this.disponible--;
+                if(cliente == this.colaEspera.peek()){
+                    if (this.cantTicketsACT - cliente.compra < 0) {
+                        System.out.println(
+                            "No hay tickets suficientes para que " + cliente.id +" ("+cliente.equipo+")"+" compre " + cliente.compra + " entradas");
+                            this.colaEspera.poll(); //! OJO PELAO 1
+                        }
+                        // ! Se proceden a comprar los tickets, ocupando la taquilla
+                        else {
+                            System.out.println("Fanatico " + cliente.id +" ("+cliente.equipo+")"+ " Comprando " + cliente.compra + " tickets ...");
+                            this.cantTicketsACT -= cliente.compra;
+                            this.colaEspera.poll();
+                        }
+                        break;
+                }
+                // * La compra excede la cantidad de tickets
+            }
         }
-        // * La compra excede la cantidad de tickets
-    }
     }
 
     public synchronized void cancelar(Fan cliente) {
@@ -77,41 +145,42 @@ class Taquillas {
         } catch (InterruptedException e) {}
         
         while (true) {
-            if (this.disponible == 0) {
-                System.out.println("Taquilla no disponible para "+cliente.id+" cancelar "+cliente.compra+" Colocandose en la cola");
+            if (this.timer) {
                 try {
-                    /*System.out.println("El tamaño actual es "+this.colaEspera.size()+" y contiene: ");
-                    for (Fan i :  this.colaEspera) {
-                        System.out.println(i.id);
-                    }*/
                     wait();
                 } catch (InterruptedException e) {}
-            }
-            while(this.disponible == 0 || cliente!=this.colaEspera.peek()) {
+            }else{
+                if (this.disponible == 0) {
+                    System.out.println("Taquilla no disponible para "+cliente.id+" ("+cliente.equipo+")"+" cancelar "+cliente.compra+" Colocandose en la cola");
                     try {
                         wait();
                     } catch (InterruptedException e) {}
                 }
-    
-            this.disponible--;
-            if(cliente == this.colaEspera.peek()){
-                    System.out.println("Fanatico " + cliente.id + " Devolviendo " + cliente.compra + " tickets ...");
-                    this.cantTicketsACT += cliente.compra;
-                    this.colaEspera.poll();
-                    break;
+                while(this.disponible == 0 || cliente!=this.colaEspera.peek()) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {}
+                    }
+        
+                this.disponible--;
+                if(cliente == this.colaEspera.peek()){
+                        System.out.println("Fanatico " + cliente.id +" ("+cliente.equipo+")"+ " Devolviendo " + cliente.compra + " tickets ...");
+                        this.cantTicketsACT += cliente.compra;
+                        this.colaEspera.poll();
+                        break;
+                }
+                // * La compra excede la cantidad de tickets
             }
-            // * La compra excede la cantidad de tickets
+            
         }
     }
-
-    
 
     public synchronized void liberar(Fan cliente) {
         /*
         !       Se libera la taquilla ocupada y se notifica a cualquiera esperando
         TODO:   Validar que la cantidad de taquillas disponibles no exceda las 5
         */
-        System.out.println("El fanatico "+cliente.id+" saliendo de la taquilla");
+        System.out.println("El fanatico "+cliente.id+" ("+cliente.equipo+")"+" saliendo de la taquilla");
         this.disponible++;
         notifyAll();
     }
@@ -154,7 +223,7 @@ class Fan extends Thread {
             this.myTaquilla.cancelar(this);
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(1500);
             } catch (InterruptedException e) {}
 
            this.myTaquilla.liberar(this);
@@ -169,7 +238,7 @@ class Fan extends Thread {
             
             try {
                 this.myTaquilla.comprar(this);
-                Thread.sleep(100);
+                Thread.sleep(1500);
                 this.myTaquilla.liberar(this);
             } catch (InterruptedException e) {}
 

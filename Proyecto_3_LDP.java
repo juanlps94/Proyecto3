@@ -239,7 +239,7 @@ public class Proyecto_3_LDP {
         String filename;
 
         if(args.length==0){
-            filename="casoprueba.txt";
+            filename = "casoprueba.txt";
         }
         else {
             filename = args[0];

@@ -40,57 +40,80 @@ class Taquillas {
     }
 
     public synchronized void comprar(Fan cliente) {
-        System.out.println("Cliente ("+cliente.id+") comprando "+cliente.compra+" tickets");
-        
-        if(this.cantTicketsACT - cliente.compra < 0) {
-            System.out.println("No hay tickets suficientes");
-        }
-        else {
-            try {
-                this.colaEspera.put(cliente);
-                this.disponible--;
+        System.out.println("Turno ("+cliente.id+")");
+        System.out.println("Quedan "+this.cantTicketsACT+" tickets disponibles");
+        System.out.println("("+cliente.equipo+") Cliente ("+cliente.id+") comprando "+cliente.compra+" tickets");
+
+        while (this.disponible == 0) {};    //? Espera hasta que haya una taquilla disponible
+
+        try {
+            this.disponible--;
+            System.out.println("Taquillas disponibles: "+this.disponible);
+            this.colaEspera.put(cliente);
+
+            if(this.cantTicketsACT - cliente.compra < 0) {
+                System.out.println("No hay tickets suficientes");
+            }
+            else{
                 this.cantTicketsACT -= cliente.compra;
                 System.out.println("Compra exitosa ... Esperando");
-            } catch (InterruptedException e) {e.printStackTrace();}
-        }
-    }
-
-    public synchronized void liberar(Fan cliente) {
-        try {
+            }
+            Thread.sleep(1000);
+                
             this.colaEspera.take();
             this.disponible++;
-            System.out.println("Cliente ("+cliente.id+") liberando la taquilla");
+            System.out.println("("+cliente.equipo+") Cliente ("+cliente.id+") liberando la taquilla");
+            System.out.println("Taquillas disponibles: "+this.disponible+"\n");
         } catch (InterruptedException e) {e.printStackTrace();}
     }
 
     public synchronized void cancelar(Fan cliente) {
-        System.out.println("Cliente ("+cliente.id+") devolviendo "+cliente.compra+" tickets");
-        if (this.cantTicketsACT + cliente.compra > this.cantTicketsMAX) {
-            System.err.println("La cantidad de tickets a devolver excede el maximo");
-        }
-        else {
-            try {
-                this.colaEspera.put(cliente);
-                this.disponible--;
+        System.out.println("Turno ("+cliente.id+")");
+        System.out.println("Quedan "+this.cantTicketsACT+" tickets disponibles");
+        System.out.println("("+cliente.equipo+") Cliente ("+cliente.id+") devolviendo "+cliente.compra+" tickets");
+        try {
+            this.disponible--;
+            this.colaEspera.put(cliente);
+            
+            System.out.println("Taquillas disponibles: "+this.disponible);
+
+            if(this.cantTicketsACT + cliente.compra > this.cantTicketsMAX){
+                System.err.println("La cantidad de tickets a devolver excede el máximo");
+            }
+            else{
                 this.cantTicketsACT += cliente.compra;
-                System.out.println("Devolucion exitosa, esperando ...");
-            } catch (InterruptedException e) {e.printStackTrace();}
-        }
+                System.out.println("Devolución exitosa, esperando ...");
+            }
+
+            Thread.sleep(1000);
+                
+            this.colaEspera.take();
+            this.disponible++;
+            System.out.println("("+cliente.equipo+") Cliente ("+cliente.id+") liberando la taquilla");
+            System.out.println("Taquillas disponibles: "+this.disponible+"\n");
+
+        } catch (InterruptedException e) {e.printStackTrace();}
     }
 }
 
 class Fan implements Runnable {
     int id;
-    int equipo;
+    String equipo;
     int compra;
     boolean action;
     Taquillas myTaquilla;
 
     public Fan(int id, int eq, boolean groupF, int tickets, Taquillas inTaquilla) {
         this.id = id;
-        this.equipo = eq;
         this.action = false;
         this.myTaquilla = inTaquilla;
+
+        if (eq == 0) {
+            this.equipo = "Caracas";
+        }
+        else{
+            this.equipo = "Magallanes";
+        }
 
         if (groupF) {
             this.compra = tickets;
@@ -100,7 +123,8 @@ class Fan implements Runnable {
         }
     }
 
-    public Fan(int tickets, Taquillas inTaquilla) {
+    public Fan(int id, int tickets, Taquillas inTaquilla) {
+        this.id = id;
         this.action = true;
         this.myTaquilla = inTaquilla;
         this.compra = tickets;
@@ -109,36 +133,10 @@ class Fan implements Runnable {
     @Override
     public void run() {
         if (this.action) {
-            if (this.equipo == 0) {
-                System.out.println("Fanatico del Caracas:");
-            }
-            else {
-                System.out.println("Fanatico del Magallanes");
-            }
-
             this.myTaquilla.cancelar(this);
-
-            try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {}
-
-            this.myTaquilla.liberar(this);
         }
         else {
-            if (this.equipo == 0) {
-                System.out.println("Fanatico del Caracas:");
-            }
-            else {
-                System.out.println("Fanatico del Magallanes:");
-            }
-
             this.myTaquilla.comprar(this);
-            
-            try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {}
-
-            this.myTaquilla.liberar(this);
         }
     }
 }
@@ -163,12 +161,8 @@ public class Proyecto_3_LDP {
 
             Taquillas T = new Taquillas(Integer.parseInt(linea = buffer.readLine()));
 
-            System.out.println("Cantidad de tickets total:"+T.getTicketsMAX());
-
             while((linea = buffer.readLine()) != null) {
                 String[] partes = linea.split(",");
-
-                System.out.println("Quedan "+T.cantTicketsACT+" tickets disponibles");
 
                 switch (partes[0]) {
                     case "Caracas":
@@ -198,14 +192,20 @@ public class Proyecto_3_LDP {
                     break;
 
                     case "cancelar":
-                        Fan cliente = new Fan(Integer.parseInt(partes[1]), T);
+                        Fan cliente = new Fan(id, Integer.parseInt(partes[1]), T);
                         Thread t4 = new Thread(cliente);
                         t4.start();
                     break;
                 }
+
+                //* Se pone a dormir al hilo main para dar chance a los hilos de ejecutarse */
+                try{
+                    Thread.sleep(0);
+                }
+                catch(InterruptedException e){};
                 id++;
             }
-            
+            buffer.close();
         } catch (IOException e) {}
     }
 }

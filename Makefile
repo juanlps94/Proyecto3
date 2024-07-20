@@ -1,14 +1,38 @@
-TARGET = Proyecto_3_LDP
-JAVAC = javac
+# Makefile para compilar y ejecutar el proyecto
+
+# Archivos fuente
 SOURCES = Proyecto_3_LDP.java
 
-OBJECTS=$(SOURCES:.java=.class)
+# Archivos .class
+CLASSES = $(SOURCES:.java=.class)
 
-$(TARGET):  $(OBJECTS)
-    $(JAVAC) $(JFLAGS) $(OBJECTS) -o $(TARGET)
+# Compilador de Java
+JAVAC = javac
 
-%.class:    %.java $(JAVAC) $(JFLAGS) $< -c
+# Intérprete de Java
+JAVA = java
 
-clean:  rm -f $(OBJECTS)
+# Directorio donde se encuentran los archivos fuente
+SRC_DIR = .
 
-default:    $(TARGET)
+# Casos de prueba
+DEFAULT_INPUT = casoprueba.txt
+
+#
+all: compile
+
+# Compilar los archivos .java
+compile: $(CLASSES)
+
+%.class: $(SRC_DIR)/%.java
+	@$(JAVAC) $<
+
+# Limpiar los archivos compilados
+clean:
+	rm -f *.class
+
+# Ejecutar el programa principal con un archivo de entrada
+run: compile
+	$(JAVA) Principal $(ARGS)
+
+.PHONY: all compile clean run

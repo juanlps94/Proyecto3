@@ -47,6 +47,7 @@ class Taquillas {
         this.iniciarVIP();
     }
 
+   
     public synchronized void comprar(Fan cliente) {
         try {
             this.colaEspera.put(cliente);
@@ -57,8 +58,7 @@ class Taquillas {
         } catch (InterruptedException e) {}
 
         while (true) {
-            COMP:
-            if (this.timer) {
+            if ( this.timer ) {
                 if (cliente.equipo != 1) {
                     try {
                         wait();
@@ -102,10 +102,7 @@ class Taquillas {
                 if (this.disponible == 0) {
                     System.out.println("Taquilla no disponible para "+cliente.id+" ("+cliente.equipo+")"+" comprar "+cliente.compra+" Colocandose en la cola");
                     try {
-                        wait();
-                        while(timer) {
-                            wait();
-                        }   
+                        wait();  
                     } catch (InterruptedException e) {e.printStackTrace();}
                 }
 
@@ -114,7 +111,6 @@ class Taquillas {
                         wait();
                     } catch (InterruptedException e) {e.printStackTrace();}
                 }
-
                 this.disponible--;
                 if(cliente == this.colaEspera.peek()){
                     if (this.cantTicketsACT - cliente.compra < 0) {

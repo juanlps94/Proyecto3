@@ -1,22 +1,28 @@
-El problema se abordo de tal manera que existe una sola cola general para acceder a los recursos criticos (TAQUILLAS).
+## INFORME PROYECTO #3 Lenguajes de Programación (6204)
+Integrantes: Daniel Hernandez, CI: 27795163. Juan Pérez, CI: 21407463.
 
-Lo primero fue definir que tipo de estructura se usaria de forma intuitiva se escogio una LinkedBlockingQueue, la cual se definieron 2 colas una cola general y otra solo para Magallanes, cabe acotar que estas cola estan ordenadas por orden de llegada quiere decir que si llegaron, Caracas1 Magallanes1 Magallanes2 Caracas2 Caracas3, en ese orden estaran ordenados en la "colaEspera" y en "colaMagallanes" Magallanes1 Magallanes2 Magallanes3.
+## ANÁLISIS DEL PROBLEMA
+El problema se abordó de tal manera que exista una sola cola general para acceder a las taquillas para comprar las entradas (recursos críticos).
 
-Los metodos comprar y cancelar del monitor (Taquilla) indiferentemente almacenan el hilo (fanatico) en la colaEspera y si es de Magallanes tambien en colaMagallanes
-se inicia un ciclo infinito dentro del cual se comprueban diferentes cosas.
+Lo primero que se hizo fue definir que tipo de estructura se usaría para representar esta cola, se escogió usar una LinkedBlockingQueue, la cual es una implementación de BlockingQueue que es una cola con métodos Thread-safe. Posteriormente se definió una segunda cola solo para fanáticos del Magallanes, cabe acotar que estas cola están ordenadas por orden de llegada, es decir, si llegaron: Caracas1, Magallanes1, Magallanes2, Caracas2, Caracas3. El orden que tendrán al momento de almacenarse será:
 
-La primera: Que haya prioridad para comprar, el mismo es una bandera que es controlada por un timer que se activa cada cierto tiempo y cambia el valor a true o false dependiendo del caso.
+colaEspera = <Caracas1, Magallanes1, Magallanes2, Caracas2, Caracas3>
+colaMagallanes = <Magallanes1, Magallanes2, Magallanes3>
 
-La segunda: Que haya taquilla disponibles
+Los métodos definidos para el monitor: public synchronized void comprar() y public synchronized void cancelar(). Almacenan el fanático (hilo) en la colaEspera y si es fanático del Magallanes también en colaMagallanes, al momento de ejecutarse cualquier de estos métodos se inicia un bucle infinito dentro del cual se comprueban diferentes cosas.
 
-La tercera: Que el cliente que quiera tomar la taquilla sea la cabeza de la cola, si hay prioridad comprueba la cabeza de colaMagallanes.
+Primera comprobación: Que haya prioridad para comprar, para esto se usa la bandera el método private void iniciarVIP(), el cual se activa siempre al inicio de cada ejecución y posteriormente se repite cada cierto tiempo (15 segundos), su función es cambiar el valor de la bandera "boolean timer" a true y luego a false pasado un periodo de tiempo (10 segundos).
 
-Luego me apropio de una taquilla disponible y se ejecuta la logica de compra (restar X cantidad de tickets) y si el fanatico va a cancelar de forma analoga con el metodo propio, una vez finalizada la logica se hace un break para salir del ciclo infinito
+Segunda comprobación: Que haya taquillas disponibles para realizar compras o devoluciones.
 
-El metodo liberar controla las taquillas disponibles (suma 1 cuando el fanatico termina su tramite) y notifica a todos los hilos que se libero una taquilla, aunado a lo anterior, el que tomara esa taquilla es el primero que esta en la cola.
+Tercera comprobación: si un fanático desea tomar la taquilla, este debe estar ubicado al frente de la cola correspondiente, si hay prioridad comprueba colaMagallanes. Cabe mencionar que, en este caso dado que los hilos se encuentran en colaEspera y colaMagallanes, se deben eliminar también de colaEspera.
 
-La clase <Fan> controla el comportamiento de los fanaticos (hilos) con sus dos constructures asociados, el primero si el fanatico comprara se establecen los parametros: Id, Equipo, Si es compra en grupo, tickets a comprar y el monitor. En caso contrario el fanatico devolvera entrada: Id, equipo establecido en "cancelar" manejado por caso, tickets a devolver y el monitor.
+## COMPORTAMIENTO GENERAL
+Cuando un fanático se apropia de una taquilla disponible, se ejecuta la lógica correspondiente a la compra (restar una cantidad válidas de tickets) o a la devolución (sumar una cantidad válida de tickets), una vez finalizado se hace un break para salir del bucle.
+El método liberar controla las taquillas disponibles (suma 1 cuando el fanático termina su tramite) y notifica a todos los hilos que se liberó una taquilla, aunado a lo anterior, el que tomara esa taquilla es el primero que esta en la cola correspondiente al momento.
 
-La logica es simple, se maneja el caso de equipos y cancelar, una vez establecido el caso y su contructor, se verifica la bandera accion (la que maneja el caso cancelar), una vez en el caso necesario, se verifica si es una compra en grupo, y se procede a ejecutar el metodo comprar se duerme el hilo (para simular el tiempo en taquilla) y ejecuto el metodo liberar, para notificar que termine el tramite.
+La clase <Fan> controla el comportamiento de los fanáticos (hilos) con sus dos constructores asociados, el primero si el fanático comprará tickets se establecen los parámetros: Id, Equipo, Si es compra en grupo, tickets a comprar y el monitor. En caso contrario, el fanático devolverá tickets, se inicializan los parámetros: Id, equipo (establecido en "cancelar" por control), tickets a devolver y el monitor.
 
-En el main, se toma un archivo por consola en caso de que no se pase, toma un valor por defecto "casoprueba.txt" la primera linea contiene la cantidad de tickets, por lo tanto, se guarda en un int, las siguientes contienen la informacion de los hilos, por tanto se usa el metodo split para separar por el caracter ',' y se setean los casos con los constructures de <Fan> para cada caso como se explico anteriormente, se crear los hilos y se lanzan con .start()
+La lógica general es simple, se maneja el caso de equipos o cancelar, una vez establecido el caso y su constructor, se verifica la bandera "boolean action", la cual maneja el caso cancelar (true). Por otro lado, para las compras, se verifica si es una compra en grupo, y se procede a ejecutar el método comprar, una vez finalizado se duerme el hilo (para simular el tiempo en taquilla) y se ejecuta el método liberar, para notificar que el tramite ha finalizado.
+
+En la clase main, se toma un archivo por consola, en caso de que no se pase, toma un valor por defecto "casoprueba.txt", el cual contiene un caso de prueba por defecto ubicado en la misma en la misma ruta que el código fuente. La primera línea de este archivo contiene la cantidad máxima de tickets disponibles, por lo tanto, se guarda en una variable de tipo int, las siguientes líneas contienen la información de los fanáticos, para capturar las misma se usa el método split() para separar por comas (",") y se llaman a los constructores de <Fan> para cada caso, luego se crean los hilos y se lanzan con una llamada a start().

@@ -64,8 +64,6 @@ class Taquillas {
                     } catch(InterruptedException e) {e.printStackTrace();}
                 }
                 else {
-                    //System.out.println("\nCompra VIP "+cliente.id+" ("+cliente.equipo+")");
-                
                     if (this.disponible == 0) {
                         System.out.println("Taquilla no disponible para "+cliente.id+"("+cliente.equipo+")"+" comprar "+cliente.compra+" Colocandose en la cola");
                         try {
@@ -158,9 +156,15 @@ class Taquillas {
                 this.disponible--;
 
                 if(cliente == this.colaEspera.peek()){
-                    System.out.println("Fanatico " + cliente.id +" ("+cliente.equipo+")"+ " Devolviendo " + cliente.compra + " tickets ...");
-                    this.cantTicketsACT += cliente.compra;
-                    this.colaEspera.poll();
+                    if (cliente.compra + this.cantTicketsACT > this.cantTicketsMAX){
+                        System.out.println("Fanatico " + cliente.id +" ("+cliente.equipo+")"+ " Devolviendo una cantidad excesiva de tickets ...");
+                        this.colaEspera.poll();
+                    }
+                    else{
+                        System.out.println("Fanatico " + cliente.id +" ("+cliente.equipo+")"+ " Devolviendo " + cliente.compra + " tickets ...");
+                        this.cantTicketsACT += cliente.compra;
+                        this.colaEspera.poll();
+                    }
                     break;
                 }
             }

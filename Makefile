@@ -1,13 +1,14 @@
+TARGET = Proyecto_3_LDP
+JAVAC = javac
+SOURCES = Proyecto_3_LDP.java
 
-# Archivo de entrada predeterminado
-DEFAULT_INPUT = casoprueba.txt
-# Objetivo principal
-all: compile
+OBJECTS=$(SOURCES:.java=.class)
 
-# Objetivo para compilar
-compile:
-    javac Proyecto_3_LDP.java
+$(TARGET):  $(OBJECTS)
+    $(JAVAC) $(JFLAGS) $(OBJECTS) -o $(TARGET)
 
-# Objetivo para ejecutar
-run:
-    java Proyecto_3_LDP $(ARGS)
+%.class:    %.java $(JAVAC) $(JFLAGS) $< -c
+
+clean:  rm -f $(OBJECTS)
+
+default:    $(TARGET)

@@ -210,7 +210,7 @@ class Fan extends Thread {
     @Override
     public void run() {
         if (this.action) {
-            System.out.println("Fanatico (" + this.id + ") devolverá entradas: " + this.compra);
+            System.out.println("Fanatico (" + this.id + ") devolverá entradas: " + this.compra+"\n");
             this.myTaquilla.cancelar(this);
 
             try {
@@ -222,9 +222,9 @@ class Fan extends Thread {
         }
         else {
             if (this.equipo == 0) {
-                System.out.println("Fanatico (" + this.id + ") del Caracas quiere comprar: " + this.compra);
+                System.out.println("Fanatico (" + this.id + ") del Caracas quiere comprar: " + this.compra+"\n");
             } else {
-                System.out.println("Fanatico (" + this.id + ") del Magallanes quiere comprar: " + this.compra);
+                System.out.println("Fanatico (" + this.id + ") del Magallanes quiere comprar: " + this.compra+"\n");
             }
 
             try {

@@ -24,7 +24,7 @@ class Taquillas {
             public void run() {
                 synchronized (Taquillas.this) {
                     timer = true;
-                    System.out.println("\n... COMPRAS VIP (MAGALLANES) ACTIVAS ...\n");
+                    System.out.println("\n---- COMPRAS VIP (MAGALLANES) ACTIVAS ----\n");
                 }
 
                 try {
@@ -33,7 +33,7 @@ class Taquillas {
 
                 synchronized (Taquillas.this) {
                     timer = false;
-                    System.out.println("\n... COMPRAS VIP (MAGALLANES) FINALIZADAS ...\n");
+                    System.out.println("\n---- COMPRAS VIP (MAGALLANES) FINALIZADAS ----\n");
 
                     Taquillas.this.notifyAll();
                 }

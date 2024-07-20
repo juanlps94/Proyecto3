@@ -14,7 +14,6 @@ class Taquillas {
     boolean timer = false;
 
     // * Cola de espera para los hilos
-    boolean prioridad=false;
     BlockingQueue<Fan> colaEspera = new LinkedBlockingQueue<>();
     BlockingQueue<Fan> colaMagallanes = new LinkedBlockingQueue<>();
 
@@ -54,10 +53,9 @@ class Taquillas {
             if (cliente.equipo == 1) {
                 this.colaMagallanes.put(cliente);
             }
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {e.printStackTrace();}
 
         while (true) {
-            COMP:
             if (this.timer) {
                 if (cliente.equipo != 1) {
                     try {
@@ -65,13 +63,13 @@ class Taquillas {
                     } catch(InterruptedException e) {e.printStackTrace();}
                 }
                 else {
-                    System.out.println("\nComprando VIP "+cliente.id+" ("+cliente.equipo+")");
+                    //System.out.println("\nCompra VIP "+cliente.id+" ("+cliente.equipo+")");
                 
                     if (this.disponible == 0) {
                         System.out.println("Taquilla no disponible para "+cliente.id+"("+cliente.equipo+")"+" comprar "+cliente.compra+" Colocandose en la cola");
                         try {
                             wait();
-                        } catch (InterruptedException e) {}
+                        } catch (InterruptedException e) {e.printStackTrace();}
                     }
 
                     while(this.disponible == 0 || cliente!=this.colaMagallanes.peek()) {
@@ -103,9 +101,6 @@ class Taquillas {
                     System.out.println("Taquilla no disponible para "+cliente.id+" ("+cliente.equipo+")"+" comprar "+cliente.compra+" Colocandose en la cola");
                     try {
                         wait();
-                        while(timer) {
-                            wait();
-                        }   
                     } catch (InterruptedException e) {e.printStackTrace();}
                 }
 

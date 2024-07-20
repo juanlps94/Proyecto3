@@ -101,7 +101,9 @@ class Taquillas {
                     System.out.println("Taquilla no disponible para "+cliente.id+" ("+cliente.equipo+")"+" comprar "+cliente.compra+" Colocandose en la cola");
                     try {
                         wait();
-                        //goto()
+                        while(timer) {
+                            wait();
+                        }   
                     } catch (InterruptedException e) {e.printStackTrace();}
                 }
 

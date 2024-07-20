@@ -14,7 +14,6 @@ class Taquillas {
     boolean timer = false;
 
     // * Cola de espera para los hilos
-    boolean prioridad=false;
     BlockingQueue<Fan> colaEspera = new LinkedBlockingQueue<>();
     BlockingQueue<Fan> colaMagallanes = new LinkedBlockingQueue<>();
 
@@ -24,7 +23,7 @@ class Taquillas {
             public void run() {
                 synchronized (Taquillas.this) {
                     timer = true;
-                    System.out.println("\n... COMPRAS VIP (MAGALLANES) ACTIVAS ...\n");
+                    System.out.println("\n---- COMPRAS VIP (MAGALLANES) ACTIVAS ----\n");
                 }
 
                 try {
@@ -33,7 +32,7 @@ class Taquillas {
 
                 synchronized (Taquillas.this) {
                     timer = false;
-                    System.out.println("\n... COMPRAS VIP (MAGALLANES) FINALIZADAS ...\n");
+                    System.out.println("\n---- COMPRAS VIP (MAGALLANES) FINALIZADAS ----\n");
 
                     Taquillas.this.notifyAll();
                 }
@@ -55,23 +54,23 @@ class Taquillas {
             if (cliente.equipo == 1) {
                 this.colaMagallanes.put(cliente);
             }
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {e.printStackTrace();}
 
         while (true) {
-            if ( this.timer ) {
+            if (this.timer) {
                 if (cliente.equipo != 1) {
                     try {
                         wait();
                     } catch(InterruptedException e) {e.printStackTrace();}
                 }
                 else {
-                    System.out.println("\nComprando VIP "+cliente.id+" ("+cliente.equipo+")");
+                    //System.out.println("\nCompra VIP "+cliente.id+" ("+cliente.equipo+")");
                 
                     if (this.disponible == 0) {
                         System.out.println("Taquilla no disponible para "+cliente.id+"("+cliente.equipo+")"+" comprar "+cliente.compra+" Colocandose en la cola");
                         try {
                             wait();
-                        } catch (InterruptedException e) {}
+                        } catch (InterruptedException e) {e.printStackTrace();}
                     }
 
                     while(this.disponible == 0 || cliente!=this.colaMagallanes.peek()) {
@@ -102,7 +101,7 @@ class Taquillas {
                 if (this.disponible == 0) {
                     System.out.println("Taquilla no disponible para "+cliente.id+" ("+cliente.equipo+")"+" comprar "+cliente.compra+" Colocandose en la cola");
                     try {
-                        wait();  
+                        wait();
                     } catch (InterruptedException e) {e.printStackTrace();}
                 }
 

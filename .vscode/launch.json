@@ -12,9 +12,9 @@
         },
         {
             "type": "java",
-            "name": "LVBP",
+            "name": "Proyecto_3_LDP",
             "request": "launch",
-            "mainClass": "LVBP",
+            "mainClass": "Proyecto_3_LDP",
             "projectName": "Proyecto3_bd3fa245"
         },
         {

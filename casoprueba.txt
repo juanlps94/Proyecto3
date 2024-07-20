@@ -15,6 +15,7 @@ Caracas,1
 Magallanes,1
 Caracas,1
 Caracas,1
+cancelar,226
 Magallanes,1
 Caracas,1
 Magallanes,1
@@ -36,6 +37,7 @@ Magallanes,1
 Caracas,1
 cancelar,4
 cancelar,8
+cancelar,50
 Caracas,1
 Magallanes,1
 Caracas,1

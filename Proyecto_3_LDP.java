@@ -1,3 +1,5 @@
+package Proyectos.Proyecto_3_Java.Proyecto_3_LDP;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -37,7 +39,7 @@ class Taquillas {
                     Taquillas.this.notifyAll();
                 }
             }
-        }, 2000, 15000);
+        }, 0, 500000);
     }
 
     public Taquillas(int num) {
@@ -45,7 +47,6 @@ class Taquillas {
         this.cantTicketsACT = num;
         this.iniciarVIP();
     }
-
    
     public synchronized void comprar(Fan cliente) {
         try {
